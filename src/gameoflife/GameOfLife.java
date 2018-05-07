@@ -66,7 +66,7 @@ public class GameOfLife extends Application {
         
         text = new Text(Integer.toString(generation));
         text.setFont(new Font(100));
-        text.setFill(Color.rgb(255, 255, 0));
+        text.setFill(Color.rgb(255, 255, 0, 0.75));
 
         seed();
 
@@ -111,8 +111,11 @@ public class GameOfLife extends Application {
             }
         }
         generation++;
-        text.setText(Integer.toString(generation));
-        table.getChildren().add(text);
+        
+        // displayes generation counter
+//        table.getChildren().remove(text);
+//        text.setText(Integer.toString(generation));
+//        table.getChildren().add(text);
     }
 
     int liveNeighbours = 0; // tracks living neighbours
@@ -174,8 +177,11 @@ public class GameOfLife extends Application {
         }
             
         generation++;
-        text.setText(Integer.toString(generation));
-        table.getChildren().add(text);
+        
+        // displayes a yellow generation counter
+        //table.getChildren().remove(text);
+        //text.setText(Integer.toString(generation));
+        //table.getChildren().add(text);
         
     }
 }
