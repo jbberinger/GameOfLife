@@ -30,7 +30,7 @@ public class GameOfLife extends Application {
 
     final int WIDTH = 500; // window width
     final int HEIGHT = 500; // window height
-    final int SCALE = 10; // grid size
+    final int SCALE = 8; // grid size
     final int COLUMNS = WIDTH / SCALE;
     final int ROWS = HEIGHT / SCALE;
 
@@ -116,8 +116,6 @@ public class GameOfLife extends Application {
     }
 
     int liveNeighbours = 0; // tracks living neighbours
-    int columnBuffer = 0;
-    int rowBuffer = 0;
     String cellPosition;
     String checkPosition;
 
@@ -136,11 +134,14 @@ public class GameOfLife extends Application {
 
                 // counts living neighbours
                 // index ternary adjusts for edges
-                for (columnBuffer = (c == 0) ? c : c - 1; columnBuffer < c + 2 && columnBuffer < COLUMNS - 1; columnBuffer++) {
+                for (int columnBuffer = -1; columnBuffer < 2; columnBuffer++) {
 
-                    for (rowBuffer = (r == 0) ? r : r - 1; rowBuffer < r + 2 && rowBuffer < ROWS - 1; rowBuffer++) {
+                    for (int rowBuffer = -1; rowBuffer < 2; rowBuffer++) {
+                        
+                        int neighbourColumn = (c + columnBuffer + COLUMNS) % COLUMNS;
+                        int neighbourRow = (r + rowBuffer + ROWS) % ROWS;
 
-                        checkPosition = columnBuffer + " " + rowBuffer;
+                        checkPosition = neighbourColumn + " " + neighbourRow;
 
                         if (boardMapBuffer.get(checkPosition).isAlive && !checkPosition.equals(cellPosition)) {
                             liveNeighbours++;
