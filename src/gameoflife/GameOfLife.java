@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package gameoflife;
 
 import java.util.HashMap;
@@ -24,20 +19,20 @@ import javafx.scene.text.Text;
 
 /**
  *
- * @author jbber
+ * @author Justin Beringer
  */
 public class GameOfLife extends Application {
 
     final int WIDTH = 500; // window width
     final int HEIGHT = 500; // window height
-    final int SCALE = 8; // grid size
+    final int SCALE = 5; // grid size
     final int COLUMNS = WIDTH / SCALE;
     final int ROWS = HEIGHT / SCALE;
 
     // maps cells to position on board
     Map<String, Cell> boardMap = new HashMap<>();
     // allows boardMap to be iterated non-destructively
-    Map<String, Cell> boardMapBuffer = new HashMap<>();
+    boolean[][] lifeGrid = new boolean[COLUMNS][ROWS];
 
     // tracks the number of generations
     int generation = 0;
@@ -50,29 +45,28 @@ public class GameOfLife extends Application {
     public void start(Stage primaryStage) {
 
         // Initializes timeline
-        final Timeline timeline = new Timeline(new KeyFrame(Duration.ZERO, new EventHandler() {
+        final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.1), new EventHandler() {
             @Override
             public void handle(Event event) {
                 updateBoard();
             }
-        }), new KeyFrame(Duration.seconds(.1)));
-        // }), new KeyFrame(Duration.millis(100)));
+        }));
 
         // Timeline runs indefinitely
         timeline.setCycleCount(Timeline.INDEFINITE);
 
         table = new StackPane();
         board = new Pane();
-        
+
         text = new Text(Integer.toString(generation));
         text.setFont(new Font(100));
         text.setFill(Color.rgb(255, 255, 0, 0.75));
 
-        seed();
-
         table.getChildren().add(board);
         Scene scene = new Scene(table);
         scene.setFill(Color.BLACK);
+
+        seed();
 
         //primaryStage.setResizable(false);
         primaryStage.setTitle("Game of Life");
@@ -98,8 +92,9 @@ public class GameOfLife extends Application {
 
                 Cell cell = new Cell(xPos, yPos, SCALE - 1, SCALE - 1);
 
+                boolean isAlive;
                 // randomly spawns living cells
-                boolean isAlive = ThreadLocalRandom.current().nextInt(0, 1 + 1) == 1;
+                isAlive = ThreadLocalRandom.current().nextInt(0, 1 + 1) == 1;
 
                 cell.setIsAlive(isAlive);
 
@@ -107,15 +102,14 @@ public class GameOfLife extends Application {
 
                 board.getChildren().add(cell);
 
-                
             }
         }
         generation++;
-        
-        // displayes generation counter
-//        table.getChildren().remove(text);
-//        text.setText(Integer.toString(generation));
-//        table.getChildren().add(text);
+
+         //displayes generation counter
+        table.getChildren().remove(text);
+        text.setText(Integer.toString(generation));
+        table.getChildren().add(text);
     }
 
     int liveNeighbours = 0; // tracks living neighbours
@@ -124,64 +118,67 @@ public class GameOfLife extends Application {
 
     private void updateBoard() {
 
-        // loads map buffer with current state
-        boardMapBuffer = boardMap;
-
         // iterates over each cell
-        for (int c = 0; c < COLUMNS; c++) {
-            for (int r = 0; r < ROWS; r++) {
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLUMNS; c++) {
 
                 liveNeighbours = 0;
-                cellPosition = r + " " + c;
-                Cell bufferCell = boardMapBuffer.get(cellPosition);
+                cellPosition = c + " " + r;
+                Cell bufferCell = boardMap.get(cellPosition);
+                // gets initial life state
+                lifeGrid[c][r] = bufferCell.getIsAlive();
 
                 // counts living neighbours
                 // index ternary adjusts for edges
-                for (int columnBuffer = -1; columnBuffer < 2; columnBuffer++) {
+                int neighbourColumn;
+                int neighbourRow;
+                for (int rowBuffer = -1; rowBuffer < 2; rowBuffer++) {
+                    for (int columnBuffer = -1; columnBuffer < 2; columnBuffer++) {
 
-                    for (int rowBuffer = -1; rowBuffer < 2; rowBuffer++) {
-                        
-                        int neighbourColumn = (c + columnBuffer + COLUMNS) % COLUMNS;
-                        int neighbourRow = (r + rowBuffer + ROWS) % ROWS;
+                        neighbourColumn = (c + columnBuffer + COLUMNS) % COLUMNS;
+                        neighbourRow = (r + rowBuffer + ROWS) % ROWS;
 
                         checkPosition = neighbourColumn + " " + neighbourRow;
 
-                        if (boardMapBuffer.get(checkPosition).isAlive && !checkPosition.equals(cellPosition)) {
+                        if (boardMap.get(checkPosition).getIsAlive() && !checkPosition.equals(cellPosition)) {
                             liveNeighbours++;
                         }
                     }
                 }
 
-                if (bufferCell.isAlive) {
+                // enforces rules on the cells
+                if (bufferCell.getIsAlive()) {
                     if (liveNeighbours < 2 || liveNeighbours > 3) {
                         // cell dies due to underpopulation OR overpopulation
-                        bufferCell.setIsAlive(false);
+                        lifeGrid[c][r] = false;
                     }
                 } else if (liveNeighbours == 3) {
                     // neighbours reproduce
-                    bufferCell.setIsAlive(true);
+                    lifeGrid[c][r] = true;
                 }
-
             }
         }
 
-        boardMap = boardMapBuffer;
-        board.getChildren().clear();
+        for (int i = 0; i < lifeGrid.length; i++) {
+            for (int j = 0; j < lifeGrid.length; j++) {
+                boardMap.get(j + " " + i).setIsAlive(lifeGrid[j][i]);
+            }
+        }
 
         // updates board with new cells
-        for (int c = 0; c < COLUMNS; c++) {
-            for (int r = 0; r < ROWS; r++) {
-                cellPosition = r + " " + c;
+        board.getChildren().clear();
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLUMNS; c++) {
+                cellPosition = c + " " + r;
                 board.getChildren().add(boardMap.get(cellPosition));
             }
         }
-            
+
         generation++;
-        
-        // displayes a yellow generation counter
-        //table.getChildren().remove(text);
-        //text.setText(Integer.toString(generation));
-        //table.getChildren().add(text);
-        
+
+         // displayes a yellow generation counter
+        table.getChildren().remove(text);
+        text.setText(Integer.toString(generation));
+        table.getChildren().add(text);
     }
 }
