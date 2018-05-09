@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
@@ -26,10 +27,10 @@ import javafx.scene.text.Text;
 /**
  *
  * @author Justin Beringer
- * 
- * JavaFX Implementation of Conway's Game of Life
- * Inspired by: https://www.youtube.com/watch?v=FWSR_7kZuYg&t=855s
- * 
+ *
+ * JavaFX Implementation of Conway's Game of Life Inspired by:
+ * https://www.youtube.com/watch?v=FWSR_7kZuYg&t=855s
+ *
  */
 public class GameOfLife extends Application {
 
@@ -70,26 +71,42 @@ public class GameOfLife extends Application {
         }));
 
         grid = new Pane();
-        seed();
+        grid.setMaxWidth(WIDTH);
+        //grid.setStyle("-fx-background-color: gray;");
+
         vBox = new VBox();
-        vBox.setPrefWidth(WIDTH);
         vBox.getChildren().add(grid);
-        vBox.setStyle("-fx-background-color: black;");
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setSpacing(15);
+        vBox.setStyle("-fx-background-color: rgb(15, 17, 16)");
+        vBox.setPadding(new Insets(10, 10, 10, 10));
+
         controls = new HBox();
-        
-        controls.setPrefWidth(WIDTH);
-        controls.setPrefWidth(WIDTH);
-        controls.setPrefWidth(WIDTH);
-        
-        controls.setStyle("-fx-background-color: rgb(20, 20, 20);");
-        controls.setPrefHeight(50);
+        controls.setMaxWidth(WIDTH);
         controls.setSpacing(100);
         controls.setAlignment(Pos.CENTER);
-        
+
+        int buttonFontSize = 12;
+        int buttonWidth = 75;
         startButton = new Button("start");
+        startButton.setFont(new Font(buttonFontSize));
+        startButton.setPrefWidth(buttonWidth);
+        //startButton.setStyle("-fx-focus-color: transparent");
+
         pauseButton = new Button("pause");
+        pauseButton.setFont(new Font(buttonFontSize));
+        pauseButton.setPrefWidth(buttonWidth);
+        //pauseButton.setStyle("-fx-focus-color: transparent");
+
         clearButton = new Button("clear");
+        clearButton.setFont(new Font(buttonFontSize));
+        clearButton.setPrefWidth(buttonWidth);
+        //pauseButton.setStyle("-fx-focus-color: transparent");
+
         nukeButton = new Button("☢ nuke ☢");
+        nukeButton.setFont(new Font(buttonFontSize));
+        nukeButton.setPrefWidth(buttonWidth);
+        //pauseButton.setStyle("-fx-focus-color: transparent");
 
         initializeButtonListeners(timeline);
 
@@ -97,7 +114,7 @@ public class GameOfLife extends Application {
         controls.getChildren().add(pauseButton);
         controls.getChildren().add(clearButton);
         controls.getChildren().add(nukeButton);
-        
+
         generationCounter = new Text("generation: " + Integer.toString(generation));
         generationCounter.setFont(new Font(15));
         generationCounter.setFill(Color.WHITE);
@@ -106,20 +123,14 @@ public class GameOfLife extends Application {
          * adds generation counter to controls
          */
         //controls.getChildren().add(generationCounter);
-
         vBox.getChildren().add(controls);
         Scene scene = new Scene(vBox);
         scene.setFill(Color.BLACK);
-
-        primaryStage.setTitle("Game of Life");
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.sizeToScene();
-        primaryStage.show();
+        seed(scene, primaryStage);
     }
 
     // initializes cells
-    private void seed() {
+    private void seed(Scene scene, Stage primaryStage) {
 
         for (int row = 0; row < ROWS; row++) {
             for (int column = 0; column < COLUMNS; column++) {
@@ -150,6 +161,12 @@ public class GameOfLife extends Application {
                 grid.getChildren().add(cell);
             }
         }
+
+        primaryStage.setTitle("Game of Life");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        //primaryStage.sizeToScene();
+        primaryStage.show();
     }
 
     // track living neighbours
