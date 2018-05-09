@@ -1,4 +1,4 @@
-# GameOfLife
+# Game Of Life
 
 JavaFX implementation of Conway's Game of Life
 
